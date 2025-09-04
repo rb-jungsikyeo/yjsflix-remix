@@ -66,7 +66,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
       </head>
-      <body className="h-full bg-black text-white font-sans antialiased">
+      <body className="h-full font-sans antialiased">
         <SignalsProvider>
           {children}
         </SignalsProvider>

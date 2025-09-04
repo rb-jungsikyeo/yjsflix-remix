@@ -134,7 +134,7 @@ export default function Index() {
       {isLoading ? (
         <Loader />
       ) : (
-        <div className="w-full bg-black text-white">
+        <div className="w-full">
           <Carousel trendingData={trendingData as Movie[]} />
           {error && <Message text={error} color="#e50914" />}
         </div>

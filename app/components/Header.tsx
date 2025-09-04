@@ -1,6 +1,6 @@
 import { Link, useLocation } from "@remix-run/react";
 import yjsflix from "~/assets/yjsflix.png";
-import search from "~/assets/search.svg";
+import SearchIcon from "./ui/SearchIcon";
 
 export default function Header() {
   const location = useLocation();
@@ -56,7 +56,7 @@ export default function Header() {
             }`}
           >
             <Link to="/search" className="h-14 flex justify-center items-center">
-              <img src={search} alt="search" className="w-5 h-5" />
+              <SearchIcon className="w-5 h-5 text-white" />
             </Link>
           </li>
         </ul>

@@ -4,13 +4,10 @@ import { useLoaderData, Form, useNavigation, Link } from "@remix-run/react";
 import { useState } from "react";
 import { searchMulti } from "~/services/tmdb.server";
 import type { Movie, TvShow } from "~/services/tmdb.server";
-
-export const meta: MetaFunction = () => {
-  return [
-    { title: "Search | yjsflix" },
-    { name: "description", content: "Search for movies and TV shows" },
-  ];
-};
+import { Loader } from "~/components/ui/Loader";
+import { Message } from "~/components/ui/Message";
+import { Section } from "~/components/Section";
+import { Poster } from "~/components/Poster";
 
 interface SearchResultMovie extends Movie {
   media_type: 'movie';
@@ -68,144 +65,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 };
 
-// 별점을 별 아이콘으로 변환하는 컴포넌트
-function Star({ rating }: { rating: number }) {
-  const stars = Math.round(rating / 2);
-  const emptyStars = 5 - stars;
-  const starString = '★'.repeat(stars) + '☆'.repeat(emptyStars);
-  
-  return (
-    <div className="flex items-center gap-1">
-      <span className="text-yellow-500">{starString}</span>
-      <span className="text-gray-400">{rating.toFixed(1)}/10</span>
-    </div>
-  );
-}
-
-// 포스터 컴포넌트
-function Poster({ 
-  id, 
-  imageUrl, 
-  title, 
-  rating, 
-  year, 
-  isMovie = false 
-}: {
-  id: number;
-  imageUrl: string | null;
-  title: string;
-  rating: number;
-  year?: string;
-  isMovie?: boolean;
-}) {
-  const linkPath = isMovie ? `/movies/${id}` : `/tv/${id}`;
-  
-  return (
-    <Link to={linkPath} className="block text-center group">
-      <div className="relative overflow-hidden rounded-lg bg-gray-900 aspect-[2/3] mb-2">
-        {imageUrl ? (
-          <img
-            src={`https://image.tmdb.org/t/p/w342${imageUrl}`}
-            alt={title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-800">
-            <span className="text-gray-500 text-4xl">{isMovie ? '🎬' : '📺'}</span>
-          </div>
-        )}
-      </div>
-      <div className="text-left">
-        {rating > 0 && <Star rating={rating} />}
-        <h3 className="text-sm font-medium text-gray-100 truncate mt-1">
-          {title}
-        </h3>
-        {year && (
-          <p className="text-xs text-gray-500 mt-1">{year}</p>
-        )}
-      </div>
-    </Link>
-  );
-}
-
-// Section 컴포넌트
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="mb-12">
-      <h2 className="text-xl font-semibold mb-5 text-white">{title}</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-// Message 컴포넌트  
-function Message({ color, text }: { color: string; text: string }) {
-  return (
-    <div 
-      className="text-center py-3 px-5 rounded"
-      style={{ backgroundColor: color === "#000000" ? "#ffc107" : color }}
-    >
-      <span className={color === "#000000" ? "text-black" : "text-white"}>
-        {text}
-      </span>
-    </div>
-  );
-}
-
-// Loader 컴포넌트
-function Loader() {
-  return (
-    <div className="flex justify-center items-center min-h-[400px]">
-      <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-gray-200"></div>
-    </div>
-  );
-}
-
-// Header 컴포넌트
-function Header() {
-  return (
-    <header className="fixed top-0 left-0 w-full h-12 bg-black/50 backdrop-blur z-10 flex items-center justify-between px-6">
-      <ul className="flex items-center gap-6">
-        <li>
-          <Link to="/" className="flex items-center">
-            <img 
-              src="https://fontmeme.com/permalink/240824/d959bb0c11a6fa9f5a0f8e8e92e1c880.png" 
-              alt="yjsflix"
-              className="h-6"
-            />
-          </Link>
-        </li>
-        <li>
-          <Link to="/" className="text-white hover:text-gray-300 text-sm">
-            Home
-          </Link>
-        </li>
-        <li>
-          <Link to="/movies" className="text-white hover:text-gray-300 text-sm">
-            Movies
-          </Link>
-        </li>
-        <li>
-          <Link to="/tv" className="text-white hover:text-gray-300 text-sm">
-            TV
-          </Link>
-        </li>
-      </ul>
-      <ul className="flex items-center">
-        <li>
-          <Link to="/search">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </Link>
-        </li>
-      </ul>
-    </header>
-  );
-}
-
 export default function Search() {
   const { movieResults, tvResults, query, error } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
@@ -231,7 +90,6 @@ export default function Search() {
 
   return (
     <>
-      <Header />
       <div className="p-10">
         <Form 
           method="get" 
