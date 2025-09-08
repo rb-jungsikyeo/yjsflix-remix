@@ -2,20 +2,12 @@ import type { MetaFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, Form, useNavigation, Link } from "@remix-run/react";
 import { useState } from "react";
-import { searchMulti } from "~/services/tmdb.server";
+import { searchMovies, searchTvShows } from "~/services/tmdb.server";
 import type { Movie, TvShow } from "~/services/tmdb.server";
 import { Loader } from "~/components/ui/Loader";
 import { Message } from "~/components/ui/Message";
 import { Section } from "~/components/Section";
 import { Poster } from "~/components/Poster";
-
-interface SearchResultMovie extends Movie {
-  media_type: 'movie';
-}
-
-interface SearchResultTV extends TvShow {
-  media_type: 'tv';
-}
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -23,42 +15,31 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   
   if (!query) {
     return json({ 
-      movieResults: [] as SearchResultMovie[], 
-      tvResults: [] as SearchResultTV[],
+      movieResults: [] as Movie[], 
+      tvResults: [] as TvShow[],
       query: "",
       error: null 
     });
   }
   
   try {
-    const searchData = await searchMulti(query);
-    
-    // 영화와 TV로 분리
-    const movieResults = searchData.results
-      .filter(item => item.media_type === 'movie')
-      .map(item => ({
-        ...item,
-        media_type: 'movie' as const
-      })) as SearchResultMovie[];
-    
-    const tvResults = searchData.results
-      .filter(item => item.media_type === 'tv')
-      .map(item => ({
-        ...item,
-        media_type: 'tv' as const
-      })) as SearchResultTV[];
+    // 영화와 TV 프로그램 검색을 병렬로 실행
+    const [movieData, tvData] = await Promise.all([
+      searchMovies(query),
+      searchTvShows(query)
+    ]);
     
     return json({
-      movieResults,
-      tvResults,
+      movieResults: movieData.results,
+      tvResults: tvData.results,
       query,
       error: null,
     });
   } catch (error) {
     console.error("Search error:", error);
     return json({ 
-      movieResults: [] as SearchResultMovie[],
-      tvResults: [] as SearchResultTV[],
+      movieResults: [] as Movie[],
+      tvResults: [] as TvShow[],
       query,
       error: "검색 중 오류가 발생했습니다."
     });
@@ -103,7 +84,6 @@ export default function Search() {
             value={searchTerm}
             onChange={updateTerm}
             className="w-1/2 ml-4 text-4xl text-gray-100 border-0 outline-none bg-transparent text-center"
-            style={{ borderBottom: "2px solid transparent" }}
           />
         </Form>
 
