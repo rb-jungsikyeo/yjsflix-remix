@@ -4,12 +4,13 @@
 
 ## 🚀 기술 스택
 
-- **React 17.0.2** - TypeScript 4.1.2 지원
-- **React Router DOM 5.2.0** - 클라이언트 사이드 라우팅
-- **TailwindCSS** - PostCSS 7 호환 버전으로 스타일링
-- **Axios** - HTTP 클라이언트
-- **CRACO** - Create React App 설정 커스터마이징
+- **Remix** - 풀스택 React 프레임워크 (SSR/SSG)
+- **React 18** - TypeScript 5.6 지원
+- **Vite** - 빌드 도구 및 개발 서버
+- **TailwindCSS 3.4** - 유틸리티 우선 CSS 프레임워크
+- **@preact/signals-react** - 반응형 상태 관리
 - **TMDb API** - 영화/TV 데이터 소스
+- **LRU Cache + Cachified** - 서버 사이드 캐싱
 
 ## 📋 주요 기능
 
@@ -35,13 +36,13 @@ pnpm install
 
 ### 개발 서버 실행
 ```bash
-# TailwindCSS 빌드와 함께 개발 서버 시작
-npm start
-# 또는
+# Vite 개발 서버 시작
 pnpm dev
+# 또는
+npm run dev
 ```
 
-개발 서버는 http://localhost:5173 에서 실행됩니다.
+개발 서버는 http://localhost:5173 (Vite) 에서 실행됩니다.
 
 ### 프로덕션 빌드
 ```bash
@@ -54,30 +55,39 @@ pnpm build
 ## 📁 프로젝트 구조
 
 ```
-src/
-├── api.tsx                 # TMDb API 설정 및 엔드포인트
-├── Components/            
-│   ├── Router.tsx         # 메인 라우팅 설정
-│   ├── Detail.tsx         # 영화/TV 상세 페이지
-│   ├── Header.tsx         # 네비게이션 헤더
-│   ├── Loader.tsx         # 로딩 스피너
-│   ├── Movie.tsx          # 영화 카드 컴포넌트
-│   ├── Search.tsx         # 검색 페이지
-│   └── Section.tsx        # 콘텐츠 섹션 컴포넌트
-├── pages/                 
-│   ├── Home.tsx          # 홈 페이지
-│   ├── TV.tsx            # TV 프로그램 페이지
-│   └── Movie.tsx         # 영화 페이지
-├── index.tsx             # 앱 진입점
-└── tailwind/
-    └── tailwind.css      # TailwindCSS 스타일
+app/                         # Remix 앱 디렉토리
+├── root.tsx                # 루트 레이아웃
+├── entry.client.tsx        # 클라이언트 진입점
+├── entry.server.tsx        # 서버 진입점
+├── routes/                 # 파일 기반 라우팅
+│   ├── _index.tsx         # 홈 페이지
+│   ├── movies._index.tsx  # 영화 목록
+│   ├── movies.$movieId.tsx # 영화 상세
+│   ├── tv._index.tsx      # TV 목록
+│   ├── tv.$showId.tsx     # TV 상세
+│   ├── search.tsx         # 검색 페이지
+│   └── api.image.tsx      # 이미지 프록시 API
+├── components/             # UI 컴포넌트
+│   ├── ui/                # 기본 UI 요소
+│   ├── animations/        # 애니메이션 컴포넌트
+│   └── [기타 컴포넌트]     # ContentCard, Navigation 등
+├── services/               # 백엔드 서비스
+│   └── tmdb.server.ts     # TMDb API 서비스
+├── state/                  # 상태 관리
+│   └── signals.ts         # Preact Signals
+├── utils/                  # 유틸리티
+│   └── cache.server.ts    # LRU 캐시
+└── assets/                 # 정적 에셋
+    └── styles/            # CSS 파일
 ```
 
 ## 🔧 설정 파일
 
-- `craco.config.js` - PostCSS/TailwindCSS 빌드 설정
+- `vite.config.ts` - Vite + Remix 빌드 설정
 - `tailwind.config.js` - TailwindCSS 커스터마이징
-- `tsconfig.json` - TypeScript 설정
+- `postcss.config.js` - PostCSS 설정 (TailwindCSS 통합)
+- `tsconfig.json` - TypeScript 설정 (strict mode)
+- `vercel.json` - Vercel 배포 설정
 
 ## 🌐 API 엔드포인트
 
@@ -89,12 +99,12 @@ TMDb API v3 사용:
 
 ## 🚦 라우팅
 
-- `/` - 홈 (트렌딩 영화)
-- `/movie` - 영화 목록
+- `/` - 홈 (트렌딩 콘텐츠)
+- `/movies` - 영화 목록
+- `/movies/:movieId` - 영화 상세 정보
 - `/tv` - TV 프로그램 목록
+- `/tv/:showId` - TV 프로그램 상세 정보
 - `/search` - 검색 결과
-- `/movie/:id` - 영화 상세 정보
-- `/show/:id` - TV 프로그램 상세 정보
 
 ## 📝 개발 가이드
 
@@ -118,3 +128,27 @@ task-master set-status --id=<id> --status=done
 - TypeScript strict 모드 활성화
 - TailwindCSS 유틸리티 클래스 사용
 - 함수형 컴포넌트 및 React Hooks 사용
+
+## 📊 개발 현황
+**전체 진행률**: 100% 완료 (10/10 작업, 50/50 서브작업)
+
+자세한 개발 현황은 [DEVELOPMENT_STATUS.md](./DEVELOPMENT_STATUS.md) 참조
+
+## 🎯 주요 업데이트 (2025.09)
+- ✅ Remix 프레임워크로 완전 마이그레이션
+- ✅ 서버 사이드 렌더링(SSR) 구현
+- ✅ Signals 기반 상태 관리 시스템 (구현 완료, 활용 대기)
+- ✅ LRU 캐시 + Cachified로 성능 최적화
+- ✅ 모든 주요 기능 구현 완료
+
+## 📝 기술 상세
+
+### 캐싱 전략
+- **LRU 캐시**: 최대 100개 항목, 기본 TTL 5분
+- **API별 TTL**: 트렌딩(10분), 인기(30분), 상세(24시간)
+- **Cachified**: TMDb API 응답 자동 캐싱
+
+### Signals 상태 관리
+- **글로벌 상태**: 즐겨찾기, 검색, UI 상태
+- **localStorage 연동**: 자동 저장/불러오기
+- **Computed Values**: 반응형 파생 상태
