@@ -459,9 +459,17 @@ export async function searchMovies(
   query: string,
   page = 1
 ): Promise<ApiResponse<Movie>> {
-  return fetchFromTMDb('/search/movie', {
-    query: encodeURIComponent(query),
-    page: String(page),
+  return cachified({
+    key: createCacheKey('search', 'movie', query, page),
+    cache: getCache(),
+    ttl: 1000 * 60 * 5, // 5분 캐싱 (검색 결과는 짧게 캐싱)
+    staleWhileRevalidate: 1000 * 60 * 15, // 15분 동안 stale 데이터 허용
+    async getFreshValue() {
+      return fetchFromTMDb('/search/movie', {
+        query: encodeURIComponent(query),
+        page: String(page),
+      });
+    },
   });
 }
 
@@ -469,9 +477,17 @@ export async function searchTvShows(
   query: string,
   page = 1
 ): Promise<ApiResponse<TvShow>> {
-  return fetchFromTMDb('/search/tv', {
-    query: encodeURIComponent(query),
-    page: String(page),
+  return cachified({
+    key: createCacheKey('search', 'tv', query, page),
+    cache: getCache(),
+    ttl: 1000 * 60 * 5, // 5분 캐싱 (검색 결과는 짧게 캐싱)
+    staleWhileRevalidate: 1000 * 60 * 15, // 15분 동안 stale 데이터 허용
+    async getFreshValue() {
+      return fetchFromTMDb('/search/tv', {
+        query: encodeURIComponent(query),
+        page: String(page),
+      });
+    },
   });
 }
 
